@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+ http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+
+	<!--<var class="com.niit.EshoppingBackend1.dto.Address" name="address"  />-->
+
+	 <on-start>
+    <evaluate result="flowScope.cartModel" expression="cartHandler.initFlow()" />
+	</on-start> 
+	
+	<!-- <view-state id="start" view="checkout" model="flowScope.cartModel">
+		 <transition on="add" to="addShippingAddress"/>
+		<transition  on="next" to="beforeOrderSummary"/>
+	</view-state> -->
+
+	<action-state id="beforeOrderSummary">
+		<evaluate
+			expression="cartHandler.setShippingAddress(flowScope.cartModel)" />
+		<transition to="orderSummary" on="success" />
+	</action-state> 
+	
+	<view-state model="address" view="address" id="addShippingAddress">
+		<transition to="orderSummary" on="add" />
+		<transition to="start" on="back" />
+		<on-exit>
+			<evaluate expression="cartHandler.saveNewShippingAddress(cartModel,address)" />
+
+		</on-exit>
+	</view-state>
+
+	<view-state model="flowscope.cartModel" view="order" id="orderSummary">
+		<transition to="payment" on="submit" />
+
+	</view-state>
+
+	<view-state model="flowscope.cartModel" view="payment"
+		id="payment">
+
+		<transition to="placeOrder" on="submit" />
+
+	</view-state>
+
+	<action-state id="placeOrder">
+
+		<evaluate expression="cartHandler.saveOrder(cartModel)" />
+
+		<transition to="success" on="success" />
+
+		<transition to="failure" on="failure" />
+
+	</action-state>
+
+	<end-state view="success" id="success" />
+
+</flow>

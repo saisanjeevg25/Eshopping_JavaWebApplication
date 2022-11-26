@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+ http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+
+	<!-- It will create an instance and keep it inside flowScope -->
+	<var name="user" class="com.niit.EshoppingBackend1.dto.User" />
+	<var name="address" class="com.niit.EshoppingBackend1.dto.Address"/> 
+
+	<!-- <on-start> registerhandler is java class available through annotated 
+		registerhandler.java class.here we are calling it’s initFlow() method. <evaluate 
+		expression="registerHandler.initFlow()" result="flowScope.userBean"/> </on-start> -->
+
+
+	<!-- if not specified the first view state is the starting state -->
+	<view-state id="start" view="register" model="user">
+		<transition on="submit" to="validate" />
+	</view-state>
+
+	<action-state id="validate">
+		<evaluate expression="registerHandler.validateDetails(registerModel,user,messageContext)"></evaluate>
+		<transition on="success" to="billingAddress" />
+		<transition on="failure" to="start" />
+	</action-state>
+	
+	<view-state id="billingAddress" model="address">
+		<transition on="submit" to="confirmDetails" />
+		<transition on="back" to="start" />
+		<on-exit>
+			<evaluate
+				expression="registerHandler.saveBillingAddress(registerModel,address)" />
+		</on-exit>
+
+	</view-state>
+	
+
+	<view-state id="confirmDetails" view="confirmDetails" model="user">
+		<transition on="edit" to="start" />
+		<transition on="submit" to="regsave" />
+	</view-state>
+	<action-state id="regsave">
+		<evaluate expression="registerHandler.saveRegistrationDetails(registerModel)"></evaluate>
+		<transition on="success" to="welcome" />
+		<transition on="failure" to="start" />
+	</action-state>
+
+	<end-state id="welcome" view="welcome" />
+	<end-state id="toHome"
+		view="externalRedirect:contextRelative:Eshopping/page.jsp" />
+	<end-state id="toException"
+		view="externalRedirect:contextRelative:exception.jsp" />
+
+
+
+	<!-- these events are available in every state -->
+	<global-transitions>
+		<transition on="home" to="toHome" />
+		<transition on="cancel" to="toCancel" />
+		<transition on="error" to="toException" />
+	</global-transitions>
+</flow>

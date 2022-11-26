@@ -1,0 +1,58 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:wf="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    http://www.springframework.org/schema/webflow-config
+    http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd ">
+
+
+
+	<wf:flow-executor id="flowExecutor" />
+	<wf:flow-registry id="flowRegistry"
+		flow-builder-services="flowBuilderServices" base-path="/WEB-INF">
+		<!-- the id is mapped to invoke this flow -->
+		<wf:flow-location id="register" path="/memberShipFlow.xml" />
+		<wf:flow-location id="checkout" path="/checkoutFlow.xml"></wf:flow-location>
+		
+	</wf:flow-registry>
+	
+	<wf:flow-builder-services id="flowBuilderServices"
+		view-factory-creator="viewFactoryCreator" />
+		<!-- for resolving the view in flow -->
+	<bean id="viewFactoryCreator"
+		class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator">
+		<property name="viewResolvers">
+			<list>
+				<ref bean="viewResolver" />
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	
+	<!-- The flow executor -->
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerAdapter">
+		<property name="flowExecutor" ref="flowExecutor" />
+	</bean>
+	<!-- for handling the mapping used in flow -->
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+		<property name="flowRegistry" ref="flowRegistry" />
+		<property name="order" value="0" />
+	</bean>
+	
+   
+          
+</beans>
